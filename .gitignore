@@ -2,7 +2,7 @@
 node_modules/
 
 # File môi trường (chứa mật khẩu, key)
-.env
+
 
 # File log sinh ra khi chạy
 *.log
