@@ -1,0 +1,18 @@
+# Thư mục cài đặt packages
+node_modules/
+
+# File môi trường (chứa mật khẩu, key)
+.env
+
+# File log sinh ra khi chạy
+*.log
+
+# Thư mục tạm hoặc build ra khi chạy
+dist/
+build/
+out/
+tmp/
+.cache/
+
+# Coverage khi test
+coverage/
