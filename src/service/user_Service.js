@@ -30,7 +30,7 @@ const createUserService = async (
     }
 
     const hashPassword = await bcrypt.hash(password, saltRounds);
-    const role = "admin";
+    const role = "user";
 
     // 2️⃣ Insert user
     await db.promise().query(
