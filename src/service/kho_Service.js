@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 import create_id from "./utils/id.js";
 
-const addKho_service = async (ten_kho, dia_chi, nha_cung_cap) => {
+const addKho_service = async (ten_kho, dia_chi, nha_cung_cap, user_id) => {
   const chuoi = "KHO_";
   const kho_id = create_id(chuoi);
 
@@ -9,8 +9,8 @@ const addKho_service = async (ten_kho, dia_chi, nha_cung_cap) => {
     await db
       .promise()
       .query(
-        `INSERT INTO kho (kho_id, ten_kho, dia_chi, nha_cung_cap) VALUES (?,?,?,?)`,
-        [kho_id, ten_kho, dia_chi, nha_cung_cap]
+        `INSERT INTO kho (kho_id, ten_kho, dia_chi, nha_cung_cap,user_id) VALUES (?,?,?,?,?)`,
+        [kho_id, ten_kho, dia_chi, nha_cung_cap, user_id]
       );
 
     return kho_id;

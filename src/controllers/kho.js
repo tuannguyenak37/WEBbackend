@@ -2,11 +2,9 @@ import khoCheck from "../service/utils/KhoCheck.js";
 import Kho_Service from "../service/kho_Service.js";
 const addKho_Controller = async (req, res) => {
   const role = req.user.role;
-
+  const user_id = req.user.user_id;
   const { ten_kho, dia_chi, nha_cung_cap } = req.body;
 
-  console.log(">>>>> Role:", role);
-  console.log(">>>>> Role:", req.body);
   if (!role) {
     return res.status(400).json({
       status: "fail",
@@ -15,7 +13,7 @@ const addKho_Controller = async (req, res) => {
   }
 
   try {
-    await Kho_Service.addKho_service(ten_kho, dia_chi, nha_cung_cap);
+    await Kho_Service.addKho_service(ten_kho, dia_chi, nha_cung_cap, user_id);
     return res.status(200).json({
       status: "success",
       message: "Thêm kho thành công",
