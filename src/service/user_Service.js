@@ -98,10 +98,15 @@ const login_User_Service = async (user_name, password) => {
       user_id: foundUser.user_id,
       role: foundUser.role,
       user_name: foundUser.user_name,
+      last_name: foundUser.last_name,
     };
 
     const access_Token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE,
+    });
+    // Refresh Token dài hạn
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: process.env.JWT_REFRESH_TIME,
     });
 
     return {
@@ -109,6 +114,7 @@ const login_User_Service = async (user_name, password) => {
       message: "✅ Đăng nhập thành công",
       user: foundUser,
       access_Token,
+      refreshToken,
     };
   } catch (err) {
     console.error("DB Error:", err);

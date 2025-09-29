@@ -7,19 +7,20 @@ const addSan_Pham_Srvice = async (
   gia_ban,
   mo_ta,
   kho_id,
-  so_luong_ton
+  so_luong_ton,
+  url_sanpham 
 ) => {
   const chuoiSP = "SP_";
   const SP_id = create_id(chuoiSP);
-
+  
   try {
     await db.promise().beginTransaction();
 
     // 1. Thêm sản phẩm
     await db.promise().query(
-      `INSERT INTO sanpham (sanpham_id, ten_sanpham, gia_ban, mo_ta, user_id) 
-       VALUES (?, ?, ?, ?, ?)`,
-      [SP_id, ten_sanpham, gia_ban, mo_ta, user_id]
+      `INSERT INTO sanpham (sanpham_id, ten_sanpham, gia_ban, mo_ta, user_id,url_sanpham) 
+       VALUES (?, ?, ?, ?, ?,?)`,
+      [SP_id, ten_sanpham, gia_ban, mo_ta, user_id, url_sanpham]
     );
 
     // 2. Thêm bản ghi vào kho_sanpham

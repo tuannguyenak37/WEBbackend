@@ -4,7 +4,7 @@ const check_SP = async (sanpham_id, user_id) => {
   try {
     const [rows] = await db
       .promise()
-      .query(` select * from sanpham where sanpham_id =? and user_id =?`, [
+      .query(`select * from sanpham where sanpham_id =? and user_id =?`, [
         sanpham_id,
         user_id,
       ]);

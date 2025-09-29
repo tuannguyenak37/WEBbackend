@@ -82,6 +82,20 @@ const User_Login = async (req, res) => {
       message: "mật khẩu hoặc password bị sai",
     });
   } else {
+    res.cookie("access_Token", login_User_Service.access_Token, {
+      httpOnly: false,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 phút
+    });
+    // Gửi refreshToken vào cookie
+    res.cookie("refreshToken", login_User_Service.refreshToken, {
+      httpOnly: false,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+    });
+
     return res.status(200).json({
       status: "succes",
       data: login_User_Service,

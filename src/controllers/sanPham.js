@@ -4,8 +4,12 @@ import check from "../service/utils/KhoCheck.js";
 const addSan_PhamController = async (req, res) => {
   const user_id = req.user.user_id;
 
-  const { ten_sanpham, gia_ban, mo_ta, kho_id, so_luong_ton } = req.body || "";
-
+  const { ten_sanpham, gia_ban, mo_ta, kho_id, so_luong_ton } = req.body;
+  const url_sanpham = req.file ? `/` + req.file.filename : "";
+  console.log(">>>", url_sanpham); // undefined nếu không gửi file
+  if (!req.file) {
+    return res.status(400).json({ message: "Không có file được gửi!" });
+  }
   if (!ten_sanpham || !gia_ban || !mo_ta)
     return res.status(400).json({
       status: "fail",
@@ -25,7 +29,8 @@ const addSan_PhamController = async (req, res) => {
       gia_ban,
       mo_ta,
       kho_id,
-      so_luong_ton
+      so_luong_ton,
+      url_sanpham
     );
 
     return res.status(200).json({

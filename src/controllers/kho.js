@@ -1,5 +1,7 @@
 import khoCheck from "../service/utils/KhoCheck.js";
 import Kho_Service from "../service/kho_Service.js";
+import db from "../config/db.js";
+
 const addKho_Controller = async (req, res) => {
   const role = req.user.role;
   const user_id = req.user.user_id;
@@ -56,8 +58,83 @@ const suaKho = async (req, res) => {
 
 const xem_kho = async (req, res) => {
   const user_id = req.user.user_id;
+  try {
+    const [rows] = await db.promise().query(
+      `SELECT 
+    sp.sanpham_id,
+    sp.ten_sanpham,
+    sp.gia_ban,
+    sp.mo_ta,
+    ks.so_luong_ton,
+    k.ten_kho
+    
+   FROM sanpham sp
+   JOIN kho_sanpham ks ON sp.sanpham_id = ks.sanpham_id
+    JOIN kho k ON ks.kho_id = k.kho_id
+     WHERE sp.user_id = ?`,
+      [user_id]
+    );
+    console.log(">>", rows);
+    return res.status(200).json({
+      status: "success",
+      data: rows,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: `Lỗi database: ${error.message}`,
+    });
+  }
 };
 
-const Kho_Controllers = { addKho_Controller, suaKho };
+const xem_thongtin_kho_controller = async (req, res) => {
+  const user_id = req.user.user_id;
+  try {
+    const [rows] = await db
+      .promise()
+      .query(`SELECT * FROM kho WHERE user_id =?`, [user_id]);
+    console.log(">>", rows);
+    return res.status(200).json({
+      status: "success",
+      data: rows,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: `Lỗi database: ${error.message}`,
+    });
+  }
+};
+
+const nhap_kho_controller = async (req, res) => {
+  const { listSanPham, select_kho } = req.body;
+  console.log(">>>>>", select_kho);
+  const checkK = await khoCheck.check_kho(select_kho);
+  if (!checkK)
+    return res.status(401).json({
+      message: "kho  ko tồn tại",
+    });
+  console.log(">>>>>", listSanPham);
+  try {
+    await Kho_Service.nhap_kho_service(listSanPham, select_kho);
+    return res.status(200).json({
+      status: "success",
+      message: "nhập kho thành công",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: `Lỗi database: ${error.message}`,
+    });
+  }
+};
+
+const Kho_Controllers = {
+  addKho_Controller,
+  suaKho,
+  xem_kho,
+  xem_thongtin_kho_controller,
+  nhap_kho_controller,
+};
 
 export default Kho_Controllers;

@@ -60,12 +60,46 @@ const SuaSanphamTrongKho_service = async (kho_id, sanpham_id, so_luong_ton) => {
     throw error;
   }
 };
+const nhap_kho_service = async (listSanPham, kho_id) => {
+  const connection = db.promise(); // dùng trực tiếp connection hiện tại
+  try {
+    await connection.beginTransaction();
+
+    if (!Array.isArray(listSanPham)) {
+      throw new Error("listSanPham phải là array");
+    }
+
+    const caseStr = listSanPham
+      .map((sp) => `WHEN '${sp.sanpham_id}' THEN ${parseInt(sp.so_luong, 10)}`)
+      .join(" ");
+
+    const ids = listSanPham.map((sp) => `'${sp.sanpham_id}'`).join(",");
+
+    const sql = `
+      UPDATE kho_sanpham
+      SET so_luong_ton = so_luong_ton + CASE sanpham_id ${caseStr} END
+      WHERE kho_id = ? AND sanpham_id IN (${ids})
+    `;
+
+    console.log("SQL query:", sql);
+
+    await connection.execute(sql, [kho_id]);
+
+    await connection.commit();
+    console.log("✅ Transaction thành công");
+  } catch (error) {
+    await connection.rollback();
+    console.error("❌ Rollback do lỗi:", error.message);
+    throw error;
+  }
+};
 
 const Kho_service = {
   addKho_service,
   addSanphamToKho_service,
   SuaKho_service,
   SuaSanphamTrongKho_service,
+  nhap_kho_service,
 };
 
 export default Kho_service;
