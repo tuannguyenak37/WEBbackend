@@ -4,9 +4,9 @@ import db from "../config/db.js";
 
 const addKho_Controller = async (req, res) => {
   const role = req.user.role;
-  const user_id = req.user.user_id;
-  const { ten_kho, dia_chi, nha_cung_cap } = req.body;
-
+  const { ten_kho, dia_chi } = req.body;
+  const shop_id = req.user.shop_id;
+  console.log(">>::", shop_id);
   if (!role) {
     return res.status(400).json({
       status: "fail",
@@ -15,7 +15,12 @@ const addKho_Controller = async (req, res) => {
   }
 
   try {
-    await Kho_Service.addKho_service(ten_kho, dia_chi, nha_cung_cap, user_id);
+    await Kho_Service.addKho_service(
+      ten_kho,
+      dia_chi,
+
+      shop_id
+    );
     return res.status(200).json({
       status: "success",
       message: "Thêm kho thành công",
@@ -57,7 +62,7 @@ const suaKho = async (req, res) => {
 };
 
 const xem_kho = async (req, res) => {
-  const user_id = req.user.user_id;
+  const shop_id = req.user.shop_id;
   try {
     const [rows] = await db.promise().query(
       `SELECT 
@@ -71,8 +76,8 @@ const xem_kho = async (req, res) => {
    FROM sanpham sp
    JOIN kho_sanpham ks ON sp.sanpham_id = ks.sanpham_id
     JOIN kho k ON ks.kho_id = k.kho_id
-     WHERE sp.user_id = ?`,
-      [user_id]
+     WHERE sp.shop_id = ?`,
+      [shop_id]
     );
     console.log(">>", rows);
     return res.status(200).json({
@@ -88,11 +93,14 @@ const xem_kho = async (req, res) => {
 };
 
 const xem_thongtin_kho_controller = async (req, res) => {
-  const user_id = req.user.user_id;
+  const shop_id = req.user.shop_id;
+  console.log(">>::", shop_id);
+
   try {
     const [rows] = await db
       .promise()
-      .query(`SELECT * FROM kho WHERE user_id =?`, [user_id]);
+      .query("SELECT * FROM kho WHERE shop_id = ?", [shop_id]);
+
     console.log(">>", rows);
     return res.status(200).json({
       status: "success",
@@ -107,7 +115,7 @@ const xem_thongtin_kho_controller = async (req, res) => {
 };
 
 const nhap_kho_controller = async (req, res) => {
-  const { listSanPham, select_kho } = req.body;
+  const { listSanPham, select_kho, nha_cung_cap } = req.body;
   console.log(">>>>>", select_kho);
   const checkK = await khoCheck.check_kho(select_kho);
   if (!checkK)
@@ -116,7 +124,7 @@ const nhap_kho_controller = async (req, res) => {
     });
   console.log(">>>>>", listSanPham);
   try {
-    await Kho_Service.nhap_kho_service(listSanPham, select_kho);
+    await Kho_Service.nhap_kho_service(listSanPham, select_kho, nha_cung_cap);
     return res.status(200).json({
       status: "success",
       message: "nhập kho thành công",

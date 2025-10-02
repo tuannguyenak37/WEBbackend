@@ -7,11 +7,12 @@ const router = express.Router();
 router.post("/refresh-token", (req, res) => {
   // Lấy refresh token từ cookie
   const refreshToken = req.cookies.refreshToken;
+  console.log(">>>", refreshToken);
   if (!refreshToken)
     return res.status(401).json({ message: "No refresh token" });
 
   // Kiểm tra refresh token
-  jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
+  jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
     if (err)
       return res.status(403).json({ message: "Refresh token không hợp lệ" });
 
@@ -21,11 +22,12 @@ router.post("/refresh-token", (req, res) => {
       user_name: user.user_name,
       role: user.role,
       last_name: user.last_name,
+      shop_id: user.shop_id || null,
     };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "15m",
     });
-    
+
     res.json({ accessToken, user });
   });
 });

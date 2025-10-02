@@ -30,13 +30,12 @@ const createUserService = async (
     }
 
     const hashPassword = await bcrypt.hash(password, saltRounds);
-    const role = "user";
+    const role = "admin";
 
-    // 2️⃣ Insert user
     await db.promise().query(
       `INSERT INTO users 
-      (user_id, first_name, last_name, email, phone, user_name, password, role, date_of_birth, status, last_login, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())`,
+  (user_id, first_name, last_name, email, phone, user_name, password, role, date_of_birth, status, last_login, created_at, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NOW(), NOW())`,
       [
         newId,
         first_name,
@@ -92,6 +91,18 @@ const login_User_Service = async (user_name, password) => {
 
     // 3️⃣ Trả về thông tin user (ẩn password)
     delete foundUser.password;
+    // 1️⃣ Lấy shop từ DB
+    const [shopRows] = await db
+      .promise()
+      .query(`SELECT shop_id, ten_shop FROM shop WHERE user_id = ?`, [
+        foundUser.user_id,
+      ]);
+
+    // 2️⃣ Xử lý shop (lấy 1 shop nếu có, null nếu chưa có)
+    const shop = shopRows.length > 0 ? shopRows[0] : null;
+
+    // 3️⃣ Debug
+    console.log("shop", shop);
 
     // 4️⃣ Tạo payload JWT
     const payload = {
@@ -99,13 +110,16 @@ const login_User_Service = async (user_name, password) => {
       role: foundUser.role,
       user_name: foundUser.user_name,
       last_name: foundUser.last_name,
+      shop_id: shop ? shop.shop_id : null, // null nếu chưa có shop
     };
 
+    // 5️⃣ Tạo access token
     const access_Token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE,
     });
+
     // Refresh Token dài hạn
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_REFRESH_TIME,
     });
 

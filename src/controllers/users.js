@@ -86,8 +86,9 @@ const User_Login = async (req, res) => {
       httpOnly: false,
       secure: false,
       sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 phút
+      maxAge: 15 * 60 * 1000,
     });
+
     // Gửi refreshToken vào cookie
     res.cookie("refreshToken", login_User_Service.refreshToken, {
       httpOnly: false,

@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
+const authMiddleware = async (req, res, next) => {
+  // const authHeader = req.headers["authorization"];
+  const token = req.cookies.access_Token;
 
   if (!token) {
     return res.status(401).json({ message: "No token !!😒😒" });
@@ -21,7 +21,7 @@ const authMiddleware = (req, res, next) => {
       if (!refreshToken)
         return res.status(401).json({ message: "No refresh token" });
 
-      jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, user) => {
+      jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
         if (err)
           return res
             .status(403)
@@ -29,13 +29,24 @@ const authMiddleware = (req, res, next) => {
 
         // Tạo access token mới
         const newAccessToken = jwt.sign(
-          { id: user.id, username: user.username, role: user.role },
+          {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            shop_id: user.shop_id || null,
+          },
           process.env.JWT_SECRET,
           { expiresIn: "15m" }
         );
 
         // Gửi token mới qua header để frontend lưu
         res.setHeader("x-access-token", newAccessToken);
+        res.cookie("access_Token", newAccessToken, {
+          httpOnly: false,
+          secure: false,
+          sameSite: "strict",
+          maxAge: 15 * 60 * 1000,
+        });
 
         // Lưu thông tin user vào req
         req.user = user;

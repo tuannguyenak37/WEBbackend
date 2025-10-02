@@ -1,7 +1,12 @@
 import db from "../config/db.js";
 import create_id from "./utils/id.js";
 
-const addKho_service = async (ten_kho, dia_chi, nha_cung_cap, user_id) => {
+const addKho_service = async (
+  ten_kho,
+  dia_chi,
+
+  shop_id
+) => {
   const chuoi = "KHO_";
   const kho_id = create_id(chuoi);
 
@@ -9,8 +14,8 @@ const addKho_service = async (ten_kho, dia_chi, nha_cung_cap, user_id) => {
     await db
       .promise()
       .query(
-        `INSERT INTO kho (kho_id, ten_kho, dia_chi, nha_cung_cap,user_id) VALUES (?,?,?,?,?)`,
-        [kho_id, ten_kho, dia_chi, nha_cung_cap, user_id]
+        `INSERT INTO kho (kho_id, ten_kho, dia_chi,shop_id) VALUES (?,?,?,?)`,
+        [kho_id, ten_kho, dia_chi, shop_id]
       );
 
     return kho_id;
@@ -60,8 +65,8 @@ const SuaSanphamTrongKho_service = async (kho_id, sanpham_id, so_luong_ton) => {
     throw error;
   }
 };
-const nhap_kho_service = async (listSanPham, kho_id) => {
-  const connection = db.promise(); // dùng trực tiếp connection hiện tại
+const nhap_kho_service = async (listSanPham, kho_id, nha_cung_cap) => {
+  const connection = db.promise();
   try {
     await connection.beginTransaction();
 
@@ -75,15 +80,18 @@ const nhap_kho_service = async (listSanPham, kho_id) => {
 
     const ids = listSanPham.map((sp) => `'${sp.sanpham_id}'`).join(",");
 
+    // Cập nhật số lượng và nhà cung cấp
     const sql = `
       UPDATE kho_sanpham
-      SET so_luong_ton = so_luong_ton + CASE sanpham_id ${caseStr} END
+      SET 
+        so_luong_ton = so_luong_ton + CASE sanpham_id ${caseStr} END,
+        nha_cung_cap = ?
       WHERE kho_id = ? AND sanpham_id IN (${ids})
     `;
 
     console.log("SQL query:", sql);
 
-    await connection.execute(sql, [kho_id]);
+    await connection.execute(sql, [nha_cung_cap, kho_id]);
 
     await connection.commit();
     console.log("✅ Transaction thành công");

@@ -2,45 +2,73 @@ import db from "../config/db.js";
 import sanPham_Service from "../service/sanPham_Service.js";
 import check from "../service/utils/KhoCheck.js";
 const addSan_PhamController = async (req, res) => {
-  const user_id = req.user.user_id;
-
-  const { ten_sanpham, gia_ban, mo_ta, kho_id, so_luong_ton } = req.body;
-  const url_sanpham = req.file ? `/` + req.file.filename : "";
-  console.log(">>>", url_sanpham); // undefined nếu không gửi file
-  if (!req.file) {
-    return res.status(400).json({ message: "Không có file được gửi!" });
-  }
-  if (!ten_sanpham || !gia_ban || !mo_ta)
-    return res.status(400).json({
-      status: "fail",
-      message: " thêm sản phẩm thất bại  thiếu thông tin",
-    });
-  const is_Kho = await check.check_kho(kho_id);
-  if (!is_Kho) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Kho không tồn tại",
-    });
-  }
   try {
-    await sanPham_Service.addSan_Pham_Srvice(
-      user_id,
+    const shop_id = req.user.shop_id;
+    console.log(">>::", shop_id);
+
+    const {
       ten_sanpham,
       gia_ban,
       mo_ta,
       kho_id,
       so_luong_ton,
-      url_sanpham
+      loai_sanpham,
+
+      nha_cung_cap,
+    } = req.body;
+
+    // Xử lý file upload
+    const url_sanpham = req.file ? `/${req.file.filename}` : "";
+
+    // Kiểm tra bắt buộc file ảnh
+    if (!req.file) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Không có file được gửi!",
+      });
+    }
+
+    // Kiểm tra thông tin bắt buộc
+    if (!ten_sanpham || !gia_ban || !mo_ta || !loai_sanpham) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Thêm sản phẩm thất bại, thiếu thông tin",
+      });
+    }
+
+    // Kiểm tra kho tồn tại
+    const is_Kho = await check.check_kho(kho_id);
+    if (!is_Kho) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Kho không tồn tại",
+      });
+    }
+
+    // Gọi service thêm sản phẩm
+    const result = await sanPham_Service.addSan_Pham_Srvice(
+      ten_sanpham,
+      gia_ban,
+      mo_ta,
+      kho_id,
+      so_luong_ton,
+      url_sanpham,
+      loai_sanpham,
+      shop_id,
+      nha_cung_cap
     );
 
+    // Trả về kết quả thành công
     return res.status(200).json({
       status: "success",
-      message: " thêm sản phẩm thành công",
+      message: "Thêm sản phẩm thành công",
+      data: result,
     });
   } catch (err) {
-    res.status(400).json({
+    console.error("❌ Lỗi addSan_PhamController:", err);
+    return res.status(500).json({
       status: "fail",
-      message: " thêm sản phẩm thất bại",
+      message: "Thêm sản phẩm thất bại, lỗi server",
     });
   }
 };
