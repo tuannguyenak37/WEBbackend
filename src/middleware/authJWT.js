@@ -1,61 +1,65 @@
 import jwt from "jsonwebtoken";
 
-const authMiddleware = async (req, res, next) => {
-  // const authHeader = req.headers["authorization"];
-  const token = req.cookies.access_Token;
+// Middleware auth hoàn chỉnh
+const authMiddleware = (req, res, next) => {
+  try {
+    const token = req.cookies?.access_Token;
 
-  if (!token) {
-    return res.status(401).json({ message: "No token !!😒😒" });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (!err) {
-      // Token hợp lệ
-      req.user = decoded;
-      return next();
+    if (!token) {
+      return res.status(401).json({ message: "No access token 😒" });
     }
 
-    // Nếu token hết hạn, kiểm tra refresh token trong cookie
-    if (err.name === "TokenExpiredError") {
-      const refreshToken = req.cookies.refreshToken;
-      if (!refreshToken)
-        return res.status(401).json({ message: "No refresh token" });
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (!err) {
+        // Token hợp lệ
+        req.user = decoded;
+        return next();
+      }
 
-      jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
-        if (err)
-          return res
-            .status(403)
-            .json({ message: "Refresh token không hợp lệ" });
+      // Token hết hạn
+      if (err.name === "TokenExpiredError") {
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+          return res.status(401).json({ message: "No refresh token 😒" });
+        }
 
-        // Tạo access token mới
-        const newAccessToken = jwt.sign(
-          {
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            shop_id: user.shop_id || null,
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: "15m" }
-        );
+        jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
+          if (err) {
+            return res.status(403).json({ message: "Refresh token không hợp lệ" });
+          }
 
-        // Gửi token mới qua header để frontend lưu
-        res.setHeader("x-access-token", newAccessToken);
-        res.cookie("access_Token", newAccessToken, {
-          httpOnly: false,
-          secure: false,
-          sameSite: "strict",
-          maxAge: 15 * 60 * 1000,
+          // Tạo access token mới
+          const newAccessToken = jwt.sign(
+            {
+              id: user.id,
+              username: user.username,
+              role: user.role,
+              shop_id: user.shop_id || null,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "15m" }
+          );
+
+          // Gửi token mới cho frontend
+          res.setHeader("x-access-token", newAccessToken);
+          res.cookie("access_Token", newAccessToken, {
+            httpOnly: true, // nên true để bảo mật
+            secure: false,  // set true nếu dùng https
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000,
+          });
+
+          req.user = user;
+          next(); // tiếp tục sang controller
         });
-
-        // Lưu thông tin user vào req
-        req.user = user;
-        next();
-      });
-    } else {
-      return res.status(403).json({ message: "Token không hợp lệ" });
-    }
-  });
+      } else {
+        return res.status(403).json({ message: "Token không hợp lệ" });
+      }
+    });
+  } catch (error) {
+    console.error("❌ Lỗi authMiddleware:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export default authMiddleware;

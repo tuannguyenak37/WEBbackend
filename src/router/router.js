@@ -2,19 +2,32 @@ import express from "express";
 import user from "../controllers/users.js";
 import delay from "../middleware/delay.js";
 import SP_client_controller from "../controllers/client/sanpham.js";
-import authJWT from "../middleware/authAdmin.js";
+import authJWT from "../middleware/authJWT.js";
+import khachhangcontroller from "../controllers/client/khachhang.js";
+import diachi_controller from "../controllers/client/diachi.js";
+import checkout_controller from "../controllers/client/checkout.js";
 const router = express.Router();
 
 router.use(delay);
 
 router.get("/", (req, res) => {
   return res.status(200).json({
-    message: "xin chao he he",
+    message: "xin chao backend đây",
   });
 });
 router.post("/createUser", user.createUserController);
 router.post("/Login", user.User_Login);
 router.get("/SP", SP_client_controller.xemSP_client_controller);
 router.get("/SPCT/:sanpham_id", SP_client_controller.xemCTSP_client_controller);
-
+router.post("/newkhachhang", authJWT, khachhangcontroller.newKHcontroller);
+router.post(
+  "/newdiachi",
+  authJWT, // middleware xác thực token
+  diachi_controller.new_diachi_controller // controller
+);
+router.post(
+  "/checkout",
+  authJWT, // middleware xác thực token
+  checkout_controller.new_checkout_controller // controller
+);
 export default router;

@@ -23,4 +23,4 @@ db.connect((err) => {
   }
 });
 
-export default db; // Export object db, không phải function
+export default db; // Export object db

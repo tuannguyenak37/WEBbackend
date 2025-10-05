@@ -36,11 +36,12 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Middleware đọc cookie từ client gửi lên
+app.use(cookieParser());
 app.get("/", (req, res) => {
   res.json({ message: "✅ API is working with CORS whitelist" });
 });
-// Middleware đọc cookie từ client gửi lên
-app.use(cookieParser());
+
 app.use("/api", refresh_token);
 app.use("/api", router);
 app.use("/api/admin", routerPrivate);
