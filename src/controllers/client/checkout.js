@@ -1,15 +1,20 @@
 import checkout_service from "../../service/checkout_service.js";
-
+import checKHo from "../../service/utils/KhoCheck.js";
 // Hàm nhóm sản phẩm theo shop_id
-const groupByShop = (list_sanpham) => {
-  return list_sanpham.reduce((grouped, sp) => {
-    if (!grouped[sp.shop_id]) {
-      grouped[sp.shop_id] = [];
-    }
-    grouped[sp.shop_id].push(sp);
-    return grouped;
-  }, {});
-};
+function groupByShopToArray(list_sanpham) {
+  const grouped = {};
+
+  list_sanpham.forEach((item) => {
+    const { shop_id, ...rest } = item;
+    if (!grouped[shop_id]) grouped[shop_id] = [];
+    grouped[shop_id].push(rest);
+  });
+
+  return Object.entries(grouped).map(([shop_id, sanpham]) => ({
+    shop_id,
+    sanpham,
+  }));
+}
 
 const new_checkout_controller = async (req, res) => {
   try {
@@ -34,26 +39,29 @@ const new_checkout_controller = async (req, res) => {
     }
 
     // Nhóm sản phẩm theo shop_id
-    const grouped = groupByShop(list_sanpham);
-
+    const grouped = groupByShopToArray(list_sanpham);
+    console.log(
+      ">>> mảng sản phẩm sau khi được lọc:",
+      JSON.stringify(grouped, null, 2)
+    );
+    /// hàm ches xem  trong kho còn sản phẩm hay ko
+    await checKHo.check_ton_kho(list_sanpham);
     // Tạo hóa đơn cho từng shop
     const results = [];
-    
+
     for (const shop_id in grouped) {
       const data = await checkout_service.new_checkout_service(
         khachhang_id,
-        shop_id,
         hinh_thuc_thanh_toan,
         giam_gia_tong_hd,
         ghi_chu,
-        grouped[shop_id]
+        grouped
       );
       results.push({
         shop_id,
         ...data,
       });
     }
-
     return res.status(200).json({
       status: "success",
       message: `Tạo ${results.length} hóa đơn thành công`,
