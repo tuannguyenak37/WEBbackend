@@ -31,7 +31,7 @@ const newKHcontroller = async (req, res) => {
 };
 const xemKHcontroller = async (req, res) => {
   const user_id = req.user.user_id;
-
+  console.log(" user_id", user_id);
   try {
     const data = await khachhang_service.xem_khachhang_service(user_id);
 

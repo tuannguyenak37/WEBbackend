@@ -1,6 +1,7 @@
 import db from "../../config/db.js";
 import dotenv from "dotenv";
 dotenv.config;
+const baseURL = `http://${process.env.HOST}:${process.env.PORT}`;
 const xemSP_client_controller = async (req, res) => {
   try {
     const [rows] = await db.promise().execute(`
@@ -9,7 +10,7 @@ const xemSP_client_controller = async (req, res) => {
     ten_sanpham,
     gia_ban,
     mo_ta,
-    CONCAT('http://localhost:${process.env.port}', url_sanpham) AS url_sanpham
+    CONCAT('${baseURL}', url_sanpham) AS url_sanpham
   FROM sanpham
   LIMIT 4
 `);
@@ -65,8 +66,7 @@ GROUP BY
     s.ngay_tao`,
       [sanpham_id] // 👈 tham số phải để ngoài string
     );
-    rows[0].url_sanpham =
-      `http://localhost:${process.env.port}` + rows[0].url_sanpham;
+    rows[0].url_sanpham = `${baseURL}` + rows[0].url_sanpham;
 
     return res.status(200).json({
       status: "success",
@@ -80,9 +80,38 @@ GROUP BY
     });
   }
 };
+const seller_client_controller = async (req, res) => {
+  try {
+    const [rows] = await db.promise().execute(`
+  SELECT 
+    sp.sanpham_id,
+    sp.ten_sanpham,
+    sp.gia_ban,
+    sp.mo_ta,
+    CONCAT('${baseURL}', sp.url_sanpham) AS url_sanpham,
+    SUM(ct.so_luong) AS tong_so_luong_ban
+  FROM sanpham sp
+  JOIN chitiethoadon ct ON sp.sanpham_id = ct.sanpham_id
+  GROUP BY sp.sanpham_id
+  ORDER BY tong_so_luong_ban DESC
+  LIMIT 4;
+`);
 
+    return res.status(200).json({
+      status: "success",
+      data: rows,
+    });
+  } catch (error) {
+    console.error("❌ Error in xemSP_client_controller:", error);
+    return res.status(400).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
 const SP_client_controller = {
   xemSP_client_controller,
   xemCTSP_client_controller,
+  seller_client_controller
 };
 export default SP_client_controller;

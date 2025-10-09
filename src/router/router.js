@@ -31,4 +31,5 @@ router.post(
   checkout_controller.new_checkout_controller // controller
 );
 router.get("/xemkh", authJWT, khachhangcontroller.xemKHcontroller);
+router.get("/bestseller", SP_client_controller.seller_client_controller);
 export default router;
