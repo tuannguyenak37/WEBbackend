@@ -25,7 +25,7 @@ router.post("/refresh-token", (req, res) => {
       shop_id: user.shop_id || null,
     };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "1d",
     });
 
     res.json({ accessToken, user });

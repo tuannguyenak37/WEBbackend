@@ -19,13 +19,16 @@ const authMiddleware = (req, res, next) => {
       // Token hết hạn
       if (err.name === "TokenExpiredError") {
         const refreshToken = req.cookies?.refreshToken;
+        console.log(">>>> token reset cũ", refreshToken);
         if (!refreshToken) {
           return res.status(401).json({ message: "No refresh token 😒" });
         }
 
         jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
           if (err) {
-            return res.status(403).json({ message: "Refresh token không hợp lệ" });
+            return res
+              .status(403)
+              .json({ message: "Refresh token không hợp lệ" });
           }
 
           // Tạo access token mới
@@ -37,18 +40,17 @@ const authMiddleware = (req, res, next) => {
               shop_id: user.shop_id || null,
             },
             process.env.JWT_SECRET,
-            { expiresIn: "15m" }
+            { expiresIn: process.env.JWT_EXPIRE }
           );
 
-          // Gửi token mới cho frontend
-          res.setHeader("x-access-token", newAccessToken);
           res.cookie("access_Token", newAccessToken, {
             httpOnly: true, // nên true để bảo mật
-            secure: false,  // set true nếu dùng https
+            secure: false, // set true nếu dùng https
             sameSite: "strict",
             maxAge: 15 * 60 * 1000,
           });
-
+          console.log(">>token cũ", token);
+          console.log("token cấp mới", newAccessToken);
           req.user = user;
           next(); // tiếp tục sang controller
         });

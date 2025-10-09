@@ -30,4 +30,5 @@ router.post(
   authJWT, // middleware xác thực token
   checkout_controller.new_checkout_controller // controller
 );
+router.get("/xemkh", authJWT, khachhangcontroller.xemKHcontroller);
 export default router;

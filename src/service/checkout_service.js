@@ -19,7 +19,7 @@ const new_checkout_service = async (
 ) => {
   const hoadon_id = create_id("HD_"); // tạo id hóa đơn
   const connection = db.promise();
-
+  console.log(">>...ghi chú", ghi_chu);
   try {
     await connection.beginTransaction();
     let list_gia_ban = [];
@@ -60,9 +60,7 @@ const new_checkout_service = async (
       let i = 0;
       const cthd_id = create_id("CTHD_");
       const soLuong = parseInt(sp.so_luong, 10);
-      const thanhTien =
-        soLuong *
-        list_gia_ban[i].gia_ban
+      const thanhTien = soLuong * list_gia_ban[i].gia_ban;
       // insert chi tiết hóa đơn
       await connection.execute(
         `INSERT INTO chitiethoadon 

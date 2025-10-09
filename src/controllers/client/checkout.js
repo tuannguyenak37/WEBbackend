@@ -21,11 +21,10 @@ const new_checkout_controller = async (req, res) => {
     const {
       khachhang_id,
       hinh_thuc_thanh_toan,
-      ghi_chu,
       list_sanpham,
       giam_gia_tong_hd = 0,
     } = req.body;
-
+    console.log("dữ kiệu  body", req.body);
     // Validate input
     if (
       !khachhang_id ||
@@ -44,12 +43,19 @@ const new_checkout_controller = async (req, res) => {
       ">>> mảng sản phẩm sau khi được lọc:",
       JSON.stringify(grouped, null, 2)
     );
+
     /// hàm ches xem  trong kho còn sản phẩm hay ko
     await checKHo.check_ton_kho(list_sanpham);
     // Tạo hóa đơn cho từng shop
+
     const results = [];
 
-    for (const shop_id in grouped) {
+    for (const shop_id of grouped) {
+      const ghi_chu = grouped[0].sanpham[0].ghi_chu;
+      console.log(
+        "> ghi chú  ................. sssssssssssssssssssssssssssssssssssssssssss",
+        ghi_chu
+      );
       const data = await checkout_service.new_checkout_service(
         khachhang_id,
         hinh_thuc_thanh_toan,
