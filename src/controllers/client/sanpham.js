@@ -94,7 +94,7 @@ const seller_client_controller = async (req, res) => {
   JOIN chitiethoadon ct ON sp.sanpham_id = ct.sanpham_id
   GROUP BY sp.sanpham_id
   ORDER BY tong_so_luong_ban DESC
-  LIMIT 4;
+  LIMIT 6;
 `);
 
     return res.status(200).json({
@@ -112,6 +112,6 @@ const seller_client_controller = async (req, res) => {
 const SP_client_controller = {
   xemSP_client_controller,
   xemCTSP_client_controller,
-  seller_client_controller
+  seller_client_controller,
 };
 export default SP_client_controller;

@@ -6,6 +6,8 @@ import authJWT from "../middleware/authJWT.js";
 import khachhangcontroller from "../controllers/client/khachhang.js";
 import diachi_controller from "../controllers/client/diachi.js";
 import checkout_controller from "../controllers/client/checkout.js";
+import upload from "../middleware/upload.js";
+import shop from "../controllers/client/shop.js";
 const router = express.Router();
 
 router.use(delay);
@@ -32,4 +34,5 @@ router.post(
 );
 router.get("/xemkh", authJWT, khachhangcontroller.xemKHcontroller);
 router.get("/bestseller", SP_client_controller.seller_client_controller);
+router.post("/newshop", authJWT, upload.single("url_shop"), shop.newshop);
 export default router;
