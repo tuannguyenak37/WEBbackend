@@ -29,7 +29,7 @@ const addSan_PhamController = async (req, res) => {
     }
 
     // Kiểm tra thông tin bắt buộc
-    if (!ten_sanpham || !gia_ban || !mo_ta || !loai_sanpham) {
+    if (!ten_sanpham || !gia_ban || !mo_ta || !loai_sanpham || !nha_cung_cap) {
       return res.status(400).json({
         status: "fail",
         message: "Thêm sản phẩm thất bại, thiếu thông tin",

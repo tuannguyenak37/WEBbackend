@@ -15,12 +15,7 @@ const addKho_Controller = async (req, res) => {
   }
 
   try {
-    await Kho_Service.addKho_service(
-      ten_kho,
-      dia_chi,
-
-      shop_id
-    );
+    await Kho_Service.addKho_service(ten_kho, dia_chi, shop_id);
     return res.status(200).json({
       status: "success",
       message: "Thêm kho thành công",
@@ -71,12 +66,13 @@ const xem_kho = async (req, res) => {
     sp.gia_ban,
     sp.mo_ta,
     ks.so_luong_ton,
+    ks.nha_cung_cap,   -- thêm cột nha_cung_cap
     k.ten_kho
-    
-   FROM sanpham sp
-   JOIN kho_sanpham ks ON sp.sanpham_id = ks.sanpham_id
-    JOIN kho k ON ks.kho_id = k.kho_id
-     WHERE sp.shop_id = ?`,
+FROM sanpham sp
+JOIN kho_sanpham ks ON sp.sanpham_id = ks.sanpham_id
+JOIN kho k ON ks.kho_id = k.kho_id
+WHERE sp.shop_id = ?
+`,
       [shop_id]
     );
     console.log(">>", rows);
