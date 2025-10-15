@@ -109,9 +109,37 @@ const seller_client_controller = async (req, res) => {
     });
   }
 };
+const seller_client_controller_random = async (req, res) => {
+  try {
+    const [rows] = await db.promise().execute(`
+      SELECT 
+        sp.sanpham_id,
+        sp.ten_sanpham,
+        sp.gia_ban,
+        sp.mo_ta,
+        CONCAT('${baseURL}', sp.url_sanpham) AS url_sanpham
+      FROM sanpham sp
+      ORDER BY RAND()
+      LIMIT 20;
+    `);
+
+    return res.status(200).json({
+      status: "success",
+      data: rows,
+    });
+  } catch (error) {
+    console.error("❌ Error in seller_client_controller_random:", error);
+    return res.status(400).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+
 const SP_client_controller = {
   xemSP_client_controller,
   xemCTSP_client_controller,
   seller_client_controller,
+  seller_client_controller_random,
 };
 export default SP_client_controller;

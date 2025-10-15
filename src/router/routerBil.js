@@ -1,0 +1,10 @@
+import express from "express";
+import delay from "../middleware/delay.js";
+import authJWT from "../middleware/authJWT.js";
+import bill_Controller from "../controllers/bill/hoadon.js";
+import authAdmin from "../middleware/authAdmin.js";
+const router = express.Router();
+router.get("/getallbill", authJWT, bill_Controller.getallBill);
+router.get("/getallbillshop", authJWT, bill_Controller.getallBill_shopid);
+router.put("/updatebill", authJWT, authAdmin, bill_Controller.updateBillStatus);
+export default router;

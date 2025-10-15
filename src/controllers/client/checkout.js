@@ -50,7 +50,7 @@ const new_checkout_controller = async (req, res) => {
 
     const results = [];
 
-    for (const shop_id of grouped) {
+    for (const { shop_id, sanpham } of grouped) {
       const ghi_chu = grouped[0].sanpham[0].ghi_chu;
       console.log(
         "> ghi chú  ................. sssssssssssssssssssssssssssssssssssssssssss",
@@ -61,7 +61,7 @@ const new_checkout_controller = async (req, res) => {
         hinh_thuc_thanh_toan,
         giam_gia_tong_hd,
         ghi_chu,
-        grouped
+        { shop_id, sanpham }
       );
       results.push({
         shop_id,

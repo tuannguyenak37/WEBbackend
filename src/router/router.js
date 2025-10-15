@@ -34,5 +34,7 @@ router.post(
 );
 router.get("/xemkh", authJWT, khachhangcontroller.xemKHcontroller);
 router.get("/bestseller", SP_client_controller.seller_client_controller);
+router.get("/sp20", SP_client_controller.seller_client_controller_random);
+
 router.post("/newshop", authJWT, upload.single("url_shop"), shop.newshop);
 export default router;
