@@ -77,5 +77,36 @@ const updateBillStatus = async (req, res) => {
     });
   }
 };
-const bill_Controller = { getallBill, getallBill_shopid, updateBillStatus };
+/** 💸 Cập nhật trạng thái hóa đơn thành "trả hàng / hoàn tiền" */
+export const updateBillRefunded = async (req, res) => {
+  try {
+    const { trang_thai, hoadon_id } = req.body;
+    if (!hoadon_id) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Thiếu hoadon_id",
+      });
+    }
+
+    const result = await hoadon_service.updateStatusById(hoadon_id, trang_thai);
+
+    return res.status(200).json({
+      status: "success",
+      message: `Đơn hàng ${hoadon_id} đã được chuyển sang trạng thái `,
+      data: result,
+    });
+  } catch (error) {
+    console.error("❌ Lỗi khi cập nhật trạng thái ", error);
+    return res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+const bill_Controller = {
+  getallBill,
+  getallBill_shopid,
+  updateBillStatus,
+  updateBillRefunded,
+};
 export default bill_Controller;

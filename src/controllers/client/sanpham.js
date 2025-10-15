@@ -45,6 +45,8 @@ const xemCTSP_client_controller = async (req, res) => {
     s.mo_ta AS mo_ta_shop,
     s.the_loai,
     s.ngay_tao,
+    s.url_shop,
+    s.dia_chi_shop,
     COALESCE(SUM(ks.so_luong_ton), 0) AS tong_so_luong_ton
 FROM sanpham sp
 LEFT JOIN kho_sanpham ks ON sp.sanpham_id = ks.sanpham_id
@@ -67,7 +69,7 @@ GROUP BY
       [sanpham_id] // 👈 tham số phải để ngoài string
     );
     rows[0].url_sanpham = `${baseURL}` + rows[0].url_sanpham;
-
+    rows[0].url_shop = `${baseURL}` + rows[0].url_shop;
     return res.status(200).json({
       status: "success",
       data: rows[0],

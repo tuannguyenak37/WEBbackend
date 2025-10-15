@@ -97,6 +97,13 @@ const login_User_Service = async (user_name, password) => {
       .query(`SELECT shop_id, ten_shop FROM shop WHERE user_id = ?`, [
         foundUser.user_id,
       ]);
+    // Nếu có shop thì thêm vào user
+    if (shopRows.length > 0) {
+      foundUser.shop_id = shopRows[0].shop_id;
+      foundUser.ten_shop = shopRows[0].ten_shop;
+    } else {
+      foundUser.shop_id = null;
+    }
 
     // 2️⃣ Xử lý shop (lấy 1 shop nếu có, null nếu chưa có)
     const shop = shopRows.length > 0 ? shopRows[0] : null;

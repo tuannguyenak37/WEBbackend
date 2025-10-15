@@ -1,7 +1,10 @@
 import khachhang_service from "../../service/khachhang_service.js";
 const newKHcontroller = async (req, res) => {
   const user_id = req.user.user_id;
-  const { ten_khachhang, so_dien_thoai } = req.body;
+  const { ten_khachhang, so_dien_thoai 
+
+    
+  } = req.body;
   console.log(">>>> data thêm mới kh", ten_khachhang, so_dien_thoai);
 
   try {

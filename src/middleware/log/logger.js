@@ -2,15 +2,13 @@ import winston from "winston";
 import path from "path";
 import fs from "fs";
 
-// Định nghĩa folder log
+// Tạo folder log nếu chưa có
 const logDir = path.join(process.cwd(), "logs");
-
-// Tạo folder nếu chưa tồn tại
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 
-// Tạo logger
+// Cấu hình Winston
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -23,15 +21,12 @@ const logger = winston.createLogger({
     )
   ),
   transports: [
-    // Log ra console đẹp
     new winston.transports.Console({
       format: winston.format.combine(winston.format.colorize({ all: true })),
     }),
-    // Log tất cả thông tin ra file
     new winston.transports.File({
       filename: path.join(logDir, "combined.log"),
     }),
-    // Log riêng lỗi ra file
     new winston.transports.File({
       filename: path.join(logDir, "error.log"),
       level: "error",
