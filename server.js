@@ -23,6 +23,7 @@ var whitelist = [
   "http://localhost:5174",
   "http://192.168.1.100:5173",
   "http://localhost:5173",
+  "http://localhost:5024",
 ];
 var corsOptions = {
   origin: function (origin, callback) {
