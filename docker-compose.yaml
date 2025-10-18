@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: .
+    container_name: backend-container
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env.docker
+    networks:
+      - phpadmin_my_network
+
+    volumes:
+      - ./:/usr/src/app
+      - backend_node_modules:/usr/src/app/node_modules
+
+volumes:
+  backend_node_modules:
+
+networks:
+  phpadmin_my_network:
+    external: true

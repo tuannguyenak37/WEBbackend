@@ -54,7 +54,7 @@ app.use("/api", router);
 app.use("/api", Routerbill);
 app.use("/api/admin", routerPrivate);
 app.use(errorLogger);
-const PORT = process.env.port || 6767;
+const PORT = process.env.PORT || 6767;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running at http://0.0.0.0:${PORT}`);
 });

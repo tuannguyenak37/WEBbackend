@@ -82,7 +82,7 @@ const new_checkout_service = async (
       );
     }
 
-    await connection.commit();
+    
     console.log("✅ Thanh toán thành công");
 
     return { hoadon_id, tong_tien_HD };
