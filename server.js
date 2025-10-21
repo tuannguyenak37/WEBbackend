@@ -9,6 +9,8 @@ import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import refresh_token from "./src/middleware/refresh_token.js";
 import Routerbill from "./src/router/routerBil.js";
+// tìm kiếm
+import search_router from "./src/router/search.js";
 // log
 import errorLogger from "./src/middleware/log/errorLogger.js";
 import requestLogger from "./src/middleware/log/requestLogger.js";
@@ -46,6 +48,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.json({ message: "✅ API is working with CORS whitelist" });
 });
+app.use("/api/", search_router);
 // log
 app.use(requestLogger); // log tất cả request
 

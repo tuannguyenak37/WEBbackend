@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const getBillDetail_service = async (hoadon_id) => {
-  const baseURL = `http://${process.env.HOST}:${process.env.PORT}`;
+  const baseURL = `http://${process.env.HOSTBAKCEND}:${process.env.PORT}`;
 
   // Lấy thông tin hóa đơn + khách hàng + địa chỉ (nếu có)
   const sqlBill = `

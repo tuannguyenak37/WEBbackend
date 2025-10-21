@@ -6,6 +6,7 @@ import authAdmin from "../middleware/authAdmin.js";
 import getBillDetail from "../controllers/bill/getBillDetail.js";
 import uploadlist from "../middleware/upload_list.js";
 import feedback from "../controllers/bill/feedback.js";
+import checkbill from "../service/utils/checkbill.js";
 const router = express.Router();
 router.get("/getallbill", authJWT, bill_Controller.getallBill);
 router.get("/getallbillshop", authJWT, bill_Controller.getallBill_shopid);
@@ -17,5 +18,12 @@ router.post(
   authJWT,
   uploadlist.array("image_url", 5),
   feedback.newfeedback_controller
+);
+router.get("/checkfeedback", authJWT, checkbill.check_feedback);
+router.get("/getfeedback", authJWT, feedback.get_feedback_controller);
+router.get(
+  "/feedbackofshop/:shop_id",
+  authJWT,
+  feedback.feedback_of_shop_controller
 );
 export default router;

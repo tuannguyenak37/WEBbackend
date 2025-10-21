@@ -1,7 +1,7 @@
 import db from "../../config/db.js";
 import dotenv from "dotenv";
-dotenv.config;
-const baseURL = `http://${process.env.HOST}:${process.env.PORT}`;
+dotenv.config();
+const baseURL = `http://${process.env.HOSTBAKCEND}:${process.env.PORT}`;
 const xemSP_client_controller = async (req, res) => {
   try {
     const [rows] = await db.promise().execute(`
@@ -70,6 +70,7 @@ GROUP BY
     );
     rows[0].url_sanpham = `${baseURL}` + rows[0].url_sanpham;
     rows[0].url_shop = `${baseURL}` + rows[0].url_shop;
+    console.log(" dữ liệu", rows);
     return res.status(200).json({
       status: "success",
       data: rows[0],
