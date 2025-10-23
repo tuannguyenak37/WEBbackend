@@ -21,9 +21,10 @@ router.post(
 );
 router.get("/checkfeedback", authJWT, checkbill.check_feedback);
 router.get("/getfeedback", authJWT, feedback.get_feedback_controller);
+router.get("/feedbackofshop/:shop_id", feedback.feedback_of_shop_controller);
+
 router.get(
-  "/feedbackofshop/:shop_id",
-  authJWT,
-  feedback.feedback_of_shop_controller
+  "/averagerating/:sanpham_id",
+  feedback.get_average_rating_controller
 );
 export default router;

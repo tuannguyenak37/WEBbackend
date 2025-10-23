@@ -1,6 +1,8 @@
 import db from "../config/db.js";
 import sanPham_Service from "../service/sanPham_Service.js";
 import check from "../service/utils/KhoCheck.js";
+import dotenv from "dotenv";
+dotenv.config();
 const addSan_PhamController = async (req, res) => {
   try {
     const shop_id = req.user.shop_id;
@@ -75,7 +77,7 @@ const addSan_PhamController = async (req, res) => {
 
 const delete_San_PhamController = async (req, res) => {
   const { sanpham_id } = req.params;
-  const user_id = req.user.user_id;
+  const shop_id = req.user.shop_id;
 
   console.log("...", sanpham_id, req.user);
 
@@ -84,7 +86,7 @@ const delete_San_PhamController = async (req, res) => {
       status: "fail",
       message: " thiếu id sản phẩm",
     });
-  const is_sp = await check.check_SP(sanpham_id, user_id);
+  const is_sp = await check.check_SP(sanpham_id, shop_id);
   if (!is_sp)
     return res.status(401).json({
       status: "fail",
@@ -98,9 +100,9 @@ const delete_San_PhamController = async (req, res) => {
 
     const [res2] = await db
       .promise()
-      .query("DELETE FROM sanpham WHERE sanpham_id = ? AND user_id = ?", [
+      .query("DELETE FROM sanpham WHERE sanpham_id = ? AND shop_id = ?", [
         sanpham_id,
-        user_id,
+        shop_id,
       ]);
     console.log("Deleted rows in sanpham:", res2.affectedRows);
 
@@ -116,31 +118,168 @@ const delete_San_PhamController = async (req, res) => {
     });
   }
 };
+const base_url = process.env.URL_IMAGE || "";
 
-// xem sản phẩm theo người bán
+// 📦 Xem danh sách sản phẩm theo shop đang đăng nhập
 const xem_SanPham_Controller = async (req, res) => {
-  const user_id = req.user.user_id;
   try {
+    const shop_id = req.user?.shop_id; // shop_id lấy từ token người dùng
+    if (!shop_id) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Không xác định được shop_id của người dùng",
+      });
+    }
+
+    const sql = `
+      SELECT 
+        s.sanpham_id,
+        s.ten_sanpham,
+        s.gia_ban,
+        s.mo_ta,
+        CONCAT(?, s.url_sanpham) AS url_sanpham,
+        s.loai_sanpham,
+        s.giam_gia_SP,
+        s.shop_id,
+        sh.ten_shop,
+        sh.dia_chi_shop,
+        CONCAT(?, sh.url_shop) AS url_shop
+      FROM sanpham AS s
+      JOIN shop AS sh ON s.shop_id = sh.shop_id
+      WHERE s.shop_id = ?
+      ORDER BY s.sanpham_id DESC;
+    `;
+
     const [rows] = await db
       .promise()
-      .query(` select * from sanpham where user_id = ?`, [user_id]);
+      .execute(sql, [base_url, base_url, shop_id]);
 
     return res.status(200).json({
       status: "success",
       data: rows,
     });
   } catch (error) {
-    console.error("Lỗi database:", err); // log server
+    console.error("Lỗi database:", error);
     return res.status(500).json({
       status: "error",
-      message: " thất bại ko thể xem",
+      message: "Không thể lấy danh sách sản phẩm của shop",
     });
   }
 };
+
+const sua_SanPham_Controller = async (req, res) => {
+  const { sanpham_id } = req.params;
+  const shop_id = req.user.shop_id;
+
+  const { ten_sanpham ="", gia_ban ="", mo_ta ="", loai_sanpham ="", giam_gia_SP="" } = req.body;
+
+  const url_sanpham = req.file ? `/${req.file.filename}` : undefined;
+
+  try {
+    // Kiểm tra sản phẩm tồn tại
+    const [exist] = await db
+      .promise()
+      .query(`SELECT * FROM sanpham WHERE sanpham_id = ? AND shop_id = ?`, [
+        sanpham_id,
+        shop_id,
+      ]);
+
+    if (exist.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Sản phẩm không tồn tại hoặc không thuộc cửa hàng này",
+      });
+    }
+
+    const current = exist[0];
+
+    // ✅ Chỉ cập nhật nếu giá trị hợp lệ, tránh lỗi kiểu dữ liệu
+    const updatedData = {
+      ten_sanpham:
+        ten_sanpham && ten_sanpham.trim() !== ""
+          ? ten_sanpham
+          : current.ten_sanpham,
+      gia_ban:
+        gia_ban !== undefined && gia_ban !== null && gia_ban !== ""
+          ? Number(gia_ban)
+          : current.gia_ban,
+      mo_ta: mo_ta && mo_ta.trim() !== "" ? mo_ta : current.mo_ta,
+      url_sanpham:
+        url_sanpham && url_sanpham.trim() !== ""
+          ? url_sanpham
+          : current.url_sanpham,
+      loai_sanpham:
+        loai_sanpham && loai_sanpham.trim() !== ""
+          ? loai_sanpham
+          : current.loai_sanpham,
+      giam_gia_SP:
+        giam_gia_SP !== undefined && giam_gia_SP !== null && giam_gia_SP !== ""
+          ? Number(giam_gia_SP)
+          : current.giam_gia_SP,
+    };
+
+    // Cập nhật sản phẩm
+    const [result] = await db.promise().query(
+      `
+      UPDATE sanpham 
+      SET 
+        ten_sanpham = ?, 
+        gia_ban = ?, 
+        mo_ta = ?, 
+        url_sanpham = ?, 
+        loai_sanpham = ?, 
+        giam_gia_SP = ?
+      WHERE sanpham_id = ? AND shop_id = ?
+      `,
+      [
+        updatedData.ten_sanpham,
+        updatedData.gia_ban,
+        updatedData.mo_ta,
+        updatedData.url_sanpham,
+        updatedData.loai_sanpham,
+        updatedData.giam_gia_SP,
+        sanpham_id,
+        shop_id,
+      ]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Không thể cập nhật sản phẩm",
+      });
+    }
+
+    // Lấy lại dữ liệu mới nhất
+    const [updated] = await db.promise().query(
+      `
+      SELECT sanpham_id, ten_sanpham, gia_ban, mo_ta, 
+        CONCAT(?, url_sanpham) AS url_sanpham, 
+        loai_sanpham, giam_gia_SP, shop_id
+      FROM sanpham WHERE sanpham_id = ?
+      `,
+      [base_url, sanpham_id]
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Cập nhật sản phẩm thành công",
+      data: updated[0],
+    });
+  } catch (error) {
+    console.error("❌ Lỗi khi sửa sản phẩm:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Lỗi server khi sửa sản phẩm",
+    });
+  }
+};
+
 // Xuất
 const sanPham_controllers = {
   addSan_PhamController,
   delete_San_PhamController,
   xem_SanPham_Controller,
+  sua_SanPham_Controller,
 };
 export default sanPham_controllers;

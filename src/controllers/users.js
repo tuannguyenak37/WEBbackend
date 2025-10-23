@@ -3,6 +3,8 @@ import user_Service from "../service/user_Service.js";
 import check from "../service/utils/checkUsers.js";
 
 import db from "../config/db.js";
+import dotenv from "dotenv";
+dotenv.config();
 const createUserController = async (req, res) => {
   try {
     const {
@@ -127,5 +129,48 @@ const getAll_User = async (req, res) => {
   }
 };
 
-const userController = { createUserController, User_Login, getAll_User };
+const base_url = process.env.URL_IMAGE || "http://localhost:3000";
+
+const profile_User = async (req, res) => {
+  try {
+    // Lấy userId từ token (middleware auth)
+    const userId = req.user.user_id;
+
+    // Truy vấn cơ sở dữ liệu
+    const [rows] = await db.promise().query(
+      `SELECT user_id, first_name, last_name, email, phone, user_name, role, avatar_url, date_of_birth, status, last_login, created_at, updated_at 
+         FROM users 
+         WHERE user_id = ?`,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "User not found" });
+    }
+
+    // Nếu avatar_url không phải là URL đầy đủ, thêm base_url
+    const user = rows[0];
+    if (user.avatar_url && !user.avatar_url.startsWith("http")) {
+      user.avatar_url = `${base_url}/${user.avatar_url}`;
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: user,
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ status: "error", message: "Server error", error: err.message });
+  }
+};
+const userController = {
+  createUserController,
+  User_Login,
+  getAll_User,
+  profile_User,
+};
 export default userController;

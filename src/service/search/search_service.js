@@ -37,6 +37,7 @@ const search_service = async (keyword, limit = 10, page = 1) => {
         s.loai_sanpham,
         s.shop_id,
         sh.ten_shop,
+        sh.dia_chi_shop,
         CONCAT(?, sh.url_shop) AS url_shop
       FROM sanpham AS s
       JOIN shop AS sh ON s.shop_id = sh.shop_id

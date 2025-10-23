@@ -6,6 +6,7 @@ import authAdmin from "../middleware/authAdmin.js";
 import getall_User from "../controllers/users.js";
 import sanPham_controllers from "../controllers/sanPham.js";
 import Kho_controlers from "../controllers/kho.js";
+import revenue from "../controllers/dasboard/revenue.js";
 const router = express.Router();
 router.use(authMiddleware, authAdmin);
 router.use(delay);
@@ -25,4 +26,12 @@ router.put("/suakho/:kho_id", Kho_controlers.suaKho);
 router.get("/xemkho", Kho_controlers.xem_kho);
 router.get("/xemthongtinkho", Kho_controlers.xem_thongtin_kho_controller);
 router.put("/nhapkho", Kho_controlers.nhap_kho_controller);
+router.patch(
+  "/suasanpham/:sanpham_id",
+  upload.single("url_sanpham"),
+  sanPham_controllers.sua_SanPham_Controller
+);
+
+router.get("/revenue", revenue.doanh_thuof_shop);
+router.get("/dtthang", revenue.doanh_thu_theo_thang);
 export default router;

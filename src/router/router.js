@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
 });
 router.post("/createUser", user.createUserController);
 router.post("/Login", user.User_Login);
+router.get("/profile", authJWT, user.profile_User);
 router.get("/SP", SP_client_controller.xemSP_client_controller);
 router.get("/SPCT/:sanpham_id", SP_client_controller.xemCTSP_client_controller);
 router.post("/newkhachhang", authJWT, khachhangcontroller.newKHcontroller);
