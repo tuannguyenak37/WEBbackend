@@ -1,7 +1,7 @@
 import db from "../../config/db.js";
 import dotenv from "dotenv";
 dotenv.config();
-const baseURL = `http://${process.env.HOSTBAKCEND}:${process.env.PORT}`;
+const baseURL = process.env.URL_IMAGE;
 const xemSP_client_controller = async (req, res) => {
   try {
     const [rows] = await db.promise().execute(`

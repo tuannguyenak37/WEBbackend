@@ -20,12 +20,14 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, "./src/public")));
+app.use("/public", express.static(path.join(__dirname, "./src/public")));
 var whitelist = [
   "http://localhost:5174",
   "http://192.168.1.100:5173",
   "http://localhost:5173",
   "http://localhost:5024",
+  "http://frontend:80",
+  "https://zada-inappeasable-garret.ngrok-free.dev",
 ];
 var corsOptions = {
   origin: function (origin, callback) {

@@ -1,20 +1,36 @@
+version: "3.8"
+
 services:
   backend:
     build: .
     container_name: backend-container
+    restart: always
     ports:
       - "5000:5000"
     env_file:
       - .env.docker
+    depends_on:
+      - redis
     networks:
       - phpadmin_my_network
-
     volumes:
       - ./:/usr/src/app
       - backend_node_modules:/usr/src/app/node_modules
 
+  redis:
+    image: redis:7
+    container_name: redis-container
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - phpadmin_my_network
+
 volumes:
   backend_node_modules:
+  redis-data:
 
 networks:
   phpadmin_my_network:
