@@ -9,6 +9,8 @@ import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import refresh_token from "./src/middleware/refresh_token.js";
 import Routerbill from "./src/router/routerBil.js";
+// email
+import roterEmail from "./src/router/routerEmail.js";
 // tìm kiếm
 import search_router from "./src/router/search.js";
 // log
@@ -58,6 +60,7 @@ app.use("/api", refresh_token);
 app.use("/api", router);
 app.use("/api", Routerbill);
 app.use("/api/admin", routerPrivate);
+app.use("/api/email", roterEmail);
 app.use(errorLogger);
 const PORT = process.env.PORT || 6767;
 app.listen(PORT, "0.0.0.0", () => {

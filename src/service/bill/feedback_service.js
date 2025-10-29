@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import id from "../utils/id.js";
 dotenv.config();
 
-const base_url = `http://${process.env.HOSTBAKCEND}:${process.env.PORT}`;
+const base_url = process.env.URL_IMAGE || "http://localhost:3000";
 
 const newfeedback_service = async (
   user_id,

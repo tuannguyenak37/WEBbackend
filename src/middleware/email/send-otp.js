@@ -28,7 +28,7 @@ function generateOtp(length = 6) {
 }
 
 // 📩 Middleware gửi OTP qua email
-const sendOtpMiddleware = async (req, res, next) => {
+const sendOtpMiddleware = async (req, res) => {
   try {
     const user_id = req.user?.user_id; // tránh lỗi nếu req.user không có
     if (!user_id) {
@@ -61,7 +61,7 @@ const sendOtpMiddleware = async (req, res, next) => {
   <div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f5f6fa; padding: 40px 0;">
     <div style="max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
       <div style="background: linear-gradient(135deg, #007BFF, #00C6FF); padding: 20px; text-align: center; color: white;">
-        <h2 style="margin: 0; font-size: 20px;">Xác thực tài khoản của bạn</h2>
+        <h2 style="margin: 0; font-size: 20px;">Xác thực MALIKETH</h2>
       </div>
       <div style="padding: 30px; text-align: center;">
         <p style="font-size: 15px; color: #333;">Xin chào,</p>
@@ -86,7 +86,9 @@ const sendOtpMiddleware = async (req, res, next) => {
     console.log(`✅ OTP gửi tới ${email}: ${otp}`); // chỉ dùng khi debug
 
     // Tiếp tục đến handler tiếp theo
-    next();
+    return res
+      .status(200)
+      .json({ ok: true, message: "OTP đã được gửi qua email!" });
   } catch (err) {
     console.error("❌ Lỗi gửi OTP:", err);
     return res.status(500).json({ ok: false, message: "Gửi OTP thất bại" });
