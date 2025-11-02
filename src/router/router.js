@@ -8,7 +8,6 @@ import diachi_controller from "../controllers/client/diachi.js";
 import checkout_controller from "../controllers/client/checkout.js";
 import upload from "../middleware/upload.js";
 import shop from "../controllers/client/shop.js";
-import sendOtpMiddleware from "../middleware/email/send-otp.js";
 const router = express.Router();
 
 router.use(delay);
@@ -32,7 +31,7 @@ router.post(
 router.post(
   "/checkout",
   authJWT, // middleware xác thực token
-  sendOtpMiddleware,
+
   checkout_controller.new_checkout_controller // controller
 );
 router.get("/xemkh", authJWT, khachhangcontroller.xemKHcontroller);
@@ -40,4 +39,5 @@ router.get("/bestseller", SP_client_controller.seller_client_controller);
 router.get("/sp20", SP_client_controller.seller_client_controller_random);
 
 router.post("/newshop", authJWT, upload.single("url_shop"), shop.newshop);
+router.get("/pageshop", shop.pageshop);
 export default router;

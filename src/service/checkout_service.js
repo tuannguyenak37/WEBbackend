@@ -4,7 +4,7 @@ import create_id from "./utils/id.js";
 const tong_tien = (list_gia_ban, giam_gia_tong_hd) => {
   let tong = 0;
   for (let i = 0; i < list_gia_ban.length; i++) {
-    tong += list_gia_ban[i].gia_ban; // đã sửa: không còn [0]
+    tong += list_gia_ban[i].gia_ban;
   }
   const giamGia = 1 - giam_gia_tong_hd / 100;
   return tong * giamGia;
@@ -15,16 +15,15 @@ const new_checkout_service = async (
   hinh_thuc_thanh_toan,
   giam_gia_tong_hd,
   ghi_chu,
-  { shop_id, sanpham } // 👈 destructure đúng kiểu dữ liệu
+  { shop_id, sanpham }
 ) => {
   const hoadon_id = create_id("HD_");
-  const connection = db.promise();
-
+  const connection = await db.promise().getConnection(); // 👈 Lấy connection riêng
   try {
     await connection.beginTransaction();
     let list_gia_ban = [];
 
-    // 🔹 Lấy giá từng sản phẩm trong shop
+    // Lấy giá từng sản phẩm
     for (let i = 0; i < sanpham.length; i++) {
       const [rows] = await connection.execute(
         `SELECT gia_ban FROM sanpham WHERE sanpham_id = ?`,
@@ -36,7 +35,7 @@ const new_checkout_service = async (
 
     const tong_tien_HD = tong_tien(list_gia_ban, giam_gia_tong_hd);
 
-    // 🔹 Tạo hóa đơn
+    // Tạo hóa đơn
     await connection.execute(
       `INSERT INTO hoadon 
         (hoadon_id, khachhang_id, shop_id, ngay_lap, tong_tien, hinh_thuc_thanh_toan, trang_thai, giam_gia_tong_hd, ghi_chu)
@@ -53,7 +52,7 @@ const new_checkout_service = async (
       ]
     );
 
-    // 🔹 Insert chi tiết hóa đơn
+    // Chi tiết hóa đơn
     for (let i = 0; i < sanpham.length; i++) {
       const sp = sanpham[i];
       const cthd_id = create_id("CTHD_");
@@ -82,12 +81,13 @@ const new_checkout_service = async (
       );
     }
 
-    
+    await connection.commit(); // commit transaction
+    connection.release(); // giải phóng connection
     console.log("✅ Thanh toán thành công");
-
     return { hoadon_id, tong_tien_HD };
   } catch (error) {
-    await connection.rollback();
+    await connection.rollback(); // rollback nếu lỗi
+    connection.release();
     console.error("❌ Rollback do lỗi:", error.message);
     throw error;
   }
