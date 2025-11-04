@@ -30,6 +30,7 @@ var whitelist = [
   "http://localhost:5024",
   "http://frontend:80",
   "https://zada-inappeasable-garret.ngrok-free.dev",
+  "https://zada-inappeasable-garret.ngrok-free.dev",
 ];
 var corsOptions = {
   origin: function (origin, callback) {
