@@ -6,8 +6,7 @@ const router = express.Router();
 // Route refresh token
 router.post("/refresh-token", (req, res) => {
   // Lấy refresh token từ cookie
-  const refreshToken = req.cookies.refreshToken;
-  console.log(">>>", refreshToken);
+  const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken)
     return res.status(401).json({ message: "No refresh token" });
 
@@ -18,16 +17,26 @@ router.post("/refresh-token", (req, res) => {
 
     // Tạo access token mới
     const payload = {
-      User_id: user.user_id,
+      user_id: user.user_id,
       user_name: user.user_name,
       role: user.role,
       last_name: user.last_name,
       shop_id: user.shop_id || null,
     };
+
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "15m", // hoặc dùng process.env.JWT_EXPIRE
     });
 
+    // ✅ Gửi lại cookie access token mới (nếu muốn client dùng cookie)
+    res.cookie("access_Token", accessToken, {
+      httpOnly: true,
+      secure: false, // true nếu HTTPS
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // ✅ Trả access token trong body luôn (dễ dùng cho header Authorization)
     res.json({ accessToken, user });
   });
 });

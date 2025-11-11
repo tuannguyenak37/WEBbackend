@@ -2,6 +2,6 @@
 const delay = (req, res, next) => {
   setTimeout(() => {
     next();
-  }, 1000); // delay 2s
+  }, 0); // delay 2s
 };
 export default delay;

@@ -2,10 +2,16 @@ import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   try {
-    const accessToken = req.cookies?.access_Token;
+    // ✅ Lấy access token: ưu tiên từ header, fallback cookie
+    const authHeader = req.headers["authorization"];
+    let accessToken =
+      authHeader && authHeader.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : req.cookies?.access_Token;
+
     const refreshToken = req.cookies?.refreshToken;
 
-    // ✅ Nếu không có accessToken, nhưng có refreshToken -> cấp mới
+    // Nếu không có accessToken nhưng có refreshToken -> cấp mới
     if (!accessToken && refreshToken) {
       return refreshAccessToken(refreshToken, req, res, next);
     }
@@ -20,7 +26,7 @@ const authMiddleware = (req, res, next) => {
         return next();
       }
 
-      // ✅ Access token hết hạn → thử refresh
+      // Access token hết hạn -> thử refresh
       if (err.name === "TokenExpiredError" && refreshToken) {
         return refreshAccessToken(refreshToken, req, res, next);
       }
@@ -43,12 +49,12 @@ function refreshAccessToken(refreshToken, req, res, next) {
         .status(403)
         .json({ message: "Refresh token không hợp lệ hoặc hết hạn" });
     }
-    console.log("token resh cũ ", refreshAccessToken);
-    // ✅ Tạo access token mới
+
+    // Tạo access token mới
     const newAccessToken = jwt.sign(
       {
-        user_id: user.user_id, // ✅ đúng key
-        user_name: user.user_name, // ✅ đúng key
+        user_id: user.user_id,
+        user_name: user.user_name,
         role: user.role,
         shop_id: user.shop_id || null,
       },
@@ -56,26 +62,23 @@ function refreshAccessToken(refreshToken, req, res, next) {
       { expiresIn: process.env.JWT_EXPIRE }
     );
 
-    // ✅ Gửi lại cookie access token mới
+    // Gửi lại cookie access token mới
     res.cookie("access_Token", newAccessToken, {
       httpOnly: true,
-      secure: false, // đổi true nếu dùng HTTPS
+      secure: false, // true nếu dùng HTTPS
       sameSite: "strict",
       maxAge: 15 * 60 * 1000,
     });
 
-    console.log("✅ Refresh access token mới:", newAccessToken);
-
-    // ✅ Giải mã token mới ngay tại đây để dùng trong request hiện tại
+    // Giải mã token mới để dùng trong request hiện tại
     jwt.verify(newAccessToken, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         console.error("⚠️ Lỗi verify token mới:", err.message);
         return res.status(403).json({ message: "Lỗi xác thực token mới" });
       }
 
-      req.user = decoded; // Gắn thông tin user mới
-      console.log(" user tokend đc cấp lại", req.user);
-      next(); // ✅ Controller sau đó sẽ có req.user hợp lệ
+      req.user = decoded; // gắn thông tin user mới
+      next();
     });
   });
 }

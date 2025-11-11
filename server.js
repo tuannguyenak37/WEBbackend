@@ -29,6 +29,7 @@ var whitelist = [
   "http://localhost:5173",
   "http://localhost:5024",
   "http://frontend:80",
+  "http://localhost:5084",
   "https://zada-inappeasable-garret.ngrok-free.dev",
   "https://zada-inappeasable-garret.ngrok-free.dev",
 ];
