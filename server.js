@@ -30,7 +30,7 @@ var whitelist = [
   "http://localhost:5024",
   "http://frontend:80",
   "http://localhost:5084",
-  "https://zada-inappeasable-garret.ngrok-free.dev",
+  "https://ALB-server-829235820.ap-southeast-1.elb.amazonaws.com",
   "https://zada-inappeasable-garret.ngrok-free.dev",
 ];
 var corsOptions = {
